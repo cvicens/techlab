@@ -2,7 +2,16 @@
 
 Contents
 
-[[TOC]]
+<!-- toc -->
+
+- [Introduction](#introduction)
+- [Pre-requisites](#pre-requisites)
+- [Log in to RHMAP](#log-in-to-rhmap)
+- [Creating a Form to capture feedback](#creating-a-form-to-capture-feedback)
+- [Creating a Project to use this form](#creating-a-project-to-use-this-form)
+- [Adding a trigger to push form data to a connector](#adding-a-trigger-to-push-form-data-to-a-connector)
+
+<!-- tocstop -->
 
 # Introduction
 
