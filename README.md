@@ -1,4 +1,4 @@
-![](header-lab-reduced.png)
+![](Header-lab-reduced.png)
 
 Contents
 
