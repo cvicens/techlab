@@ -153,6 +153,14 @@ To achieve the goal stated above we need to do the following:
 ![](./images/046.png)
 
 ## Set up the listener in application.js
+Our goal here is creating an event emitter/listener that listens to the event ``submissionComplete`` and then send the submission object to a connector.
+
+So our code first create a new Event Emitter object with ``new events.EventEmitter()`` then it 'requires' the ``fh-form-listener`` module and call the ``attach`` method. Finally we register the event emitter/receiver with ``mbaasApi.forms.registerListener``.
+
+So, what does our ``fh-form-listener`` module do? It adds a handler to the Event Emitter object we pass through the ``attach`` method for the event 'submissionComplete' and when one of those events is received it calls a connector. How does fh-form-listener know which service ID to use? This module expects ``BACKEND_SERVICE_GUID`` environment variable to be defined and pointing to the right connector and optionally variable ``BACKEND_SERVICE_PATH`` to define the path of the endpoint it will post the submission object to, if this variable is not set it will use ``/submissions`` as the default path. In this lab the connector has an endpoint for HTTP verb POST at ``/submissions`` path so no need to define this variable.
+
+These are the steps we need to take.
+
 1. Go to the Cloud App and choose ‘Editor’. Now click on ‘/application.js' file to open it on the right pane.
 2. Add the following lines of code before the list of securable endpoints (around line 6) as in the picture below
 
