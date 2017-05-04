@@ -157,7 +157,9 @@ Our goal here is creating an event emitter/listener that listens to the event ``
 
 So our code first create a new Event Emitter object with ``new events.EventEmitter()`` then it 'requires' the ``fh-form-listener`` module and call the ``attach`` method. Finally we register the event emitter/receiver with ``mbaasApi.forms.registerListener``.
 
-So, what does our ``fh-form-listener`` module do? It adds a handler to the Event Emitter object we pass through the ``attach`` method for the event 'submissionComplete' and when one of those events is received it calls a connector. How does fh-form-listener know which service ID to use? This module expects ``BACKEND_SERVICE_GUID`` environment variable to be defined and pointing to the right connector and optionally variable ``BACKEND_SERVICE_PATH`` to define the path of the endpoint it will post the submission object to, if this variable is not set it will use ``/submissions`` as the default path. In this lab the connector has an endpoint for HTTP verb POST at ``/submissions`` path so no need to define this variable.
+So, what does our ``fh-form-listener`` module do? It adds a handler to the Event Emitter object we pass through the ``attach`` method for the event 'submissionComplete' and when one of those events is received it calls a connector. How does fh-form-listener know which service ID to use? This module expects ``BACKEND_SERVICE_GUID``*(1)* environment variable to be defined and pointing to the right connector and optionally variable ``BACKEND_SERVICE_PATH`` to define the path of the endpoint it will post the submission object to, if this variable is not set it will use ``/submissions`` as the default path. In this lab the connector has an endpoint for HTTP verb POST at ``/submissions`` path so no need to define this variable.
+
+*(1) ``BACKEND_SERVICE_GUID`` enviroment variable is set later in this chapter.*
 
 These are the steps we need to take.
 
@@ -176,6 +178,14 @@ mbaasApi.forms.registerListener(require('fh-form-listener').attatch(new events.E
 ![](./images/047.png)
 3. Click ‘File→ Save’
 ![](./images/048.png)
+
+### Deploy the new version
+
+Click on the ‘Deploy’ item on the left button bar (cloud icon).
+![](./images/023.png)
+
+Make sure runtime is ‘Node.js - 4.4.3’ and click the ‘Deploy Cloud App’ button. After some seconds you should see all green.
+![](./images/024.png)
 
 ### Add the persistence connector to our project
 
