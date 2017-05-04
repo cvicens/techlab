@@ -136,105 +136,40 @@ Click on the ‘Android’ button and make sure your environment is selected on 
 
 # Adding a trigger to push form data to a connector
 
-Go to the Cloud App and choose ‘Editor’. Now click on ‘lib’ folder and then ‘File→New File.
-![](./images/032.png)
+At this step we're going to use an additional npm module, ``fh-form-listener``, which will persist our submissions everytime a submission object has been received completely.
 
-Let’s give the file this name: submissionEventListener.js
-![](./images/033.png)
+***By 'received completely' we mean specifically that an event 'submissionComplete' is emitted by the platform through the FH API.***
 
-Now copy and paste the following code:
+**Note:**
+FH API is 'loaded' in line 1 ``var mbaasApi = require('fh-mbaas-api')``
 
-```
-var express = require('express');
-var $fh = require('fh-mbaas-api');
-	
-const env = require('./environment');
-	
-function persistSubmission(submission) {
-    return new Promise(function(resolve, reject) {
-      if (typeof env.BACKEND_SERVICE_GUID === 'undefined') {
-        reject('Enviroment variable BACKEND_SERVICE_GUID not defined in Cloud App!');
-        return;
-      }
-	
-      var path = '/submissions';
-      console.log('path: ' + path);
-	
-      $fh.service({
-        "guid" : env.BACKEND_SERVICE_GUID, // The 24 character unique id of the service
-        "path": path, //the path part of the url excluding the hostname        
-        "method": "POST",   //all other HTTP methods are supported as well.
-        "timeout": 25000, // timeout value specified in milliseconds. Default: 60000 (60s)
-        "params": submission
-      }, function(err, body, response) {
-        console.log('statuscode: ', response && response.statusCode);
-        if (err) {
-          // An error occurred during the call to the service. log some debugging information
-          console.log(path + ' service call failed - err : ', err);
-          reject(err)
-        } else {
-          resolve(body)
-        }
-      });
-    });
-}
+To achieve the goal stated above we need to do the following:
 
-//NodeJS Events Module. Note, this is required to register event emitter objects to forms.
-var events = require('events');
-var submissionEventListener = new events.EventEmitter();
+## Add a new dependency in package.json
+1. Go to the Cloud App and choose ‘Editor’. Now click on ‘/package.json’ file to open it on the right pane.
+2. Add the following dependency ``"fh-form-listener": "^1.0.6"`` as in the picture below
+![](./images/045.png)
+3. Click ‘File→ Save’
+![](./images/046.png)
 
-submissionEventListener.on('submissionComplete', function(params){
-  var submissionId = params.submissionId;
-  var submissionCompletedTimestamp = params.submissionCompletedTimestamp;
-  var submission = params.submission;
-  submission.formName = params.submission.formSubmittedAgainst ?  params.submission.formSubmittedAgainst.name : 'N/A';
-  console.log("Submission with ID " + submissionId + " has completed at " + submissionCompletedTimestamp);
-  console.log("Submission: " + JSON.stringify(submission));
-  persistSubmission(submission)
-  .then(function (result) {
-    console.log('submission sent correctly result:', result);
-  })
-  .catch(function (err) {
-    console.error('Error while posting submission', err);
-  });
-});
-
-submissionEventListener.on('submissionError', function(error){
-  console.log("Error Submitting Form");
-  console.log('error', JSON.stringify(error));
-  console.log("Error Type: ", error.type);
-});
-
-$fh.forms.registerListener(submissionEventListener, function(err){
-  console.log('registering listener: submissionEventListener');
-  if (err) return handleError(err);
-
-  //submissionEventListener has now been registered with the $fh.forms Cloud API. Any valid Forms Events will now emit.
-});
-```
-
-Click ‘File→ Save’
-![](./images/034.png)
-
-Create a new file at ‘lib’ folder. Name it: environment.js
-![](./images/035.png)
-
-Paste the following code and then ‘Save’:
-
-```
-const FORM_ID = process.env.FORM_ID || '585b9e888772c41836b37dd0';
-const BACKEND_SERVICE_GUID = process.env.BACKEND_SERVICE_GUID || 'hlcvqjpcf6raquhojqbbqnlp';
-
-module.exports = { FORM_ID: FORM_ID, BACKEND_SERVICE_GUID: BACKEND_SERVICE_GUID };
-```
-
-Now open file application.js and add the following lines as in the picture. This code sets up the listener we have created before.
+## Set up the listener in application.js
+1. Go to the Cloud App and choose ‘Editor’. Now click on ‘/application.js' file to open it on the right pane.
+2. Add the following lines of code before the list of securable endpoints (around line 6) as in the picture below
 
 ```
 // Register Form Submission listener
-require('./lib/submissionEventListener');
+var events = require('events');
+mbaasApi.forms.registerListener(require('fh-form-listener').attatch(new events.EventEmitter()), 
+  function(err){
+  if (err) return console.error('Error while registering listener', err);
+  console.log('Listener fh-form-listener registered');
+});
 ```
-![](./images/036.png)
+![](./images/047.png)
+3. Click ‘File→ Save’
+![](./images/048.png)
+
+### Add the persistence connector to our project
 
 Now let’s go back to our Project view, click on ‘Apps, Cloud Apps & Services’. Click on the plus sign on the upper right corner of the box for MBaaS Services.
 ![](./images/037.png)
